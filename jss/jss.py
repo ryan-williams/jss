@@ -24,7 +24,6 @@ For more examples and information, see https://github.com/danvk/jss/.
 '''
 
 import json
-import os
 import sys
 import time
 from collections import OrderedDict

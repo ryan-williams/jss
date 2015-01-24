@@ -2,7 +2,6 @@ from nose.tools import *
 
 import glob
 import json
-import os
 import sys
 
 import jss
