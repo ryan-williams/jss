@@ -71,7 +71,7 @@ def filter_object(obj, marks, presumption=DELETE):
         m = marks.get(id(v), UNSPECIFIED)
         if m == DELETE:
             del obj[k]  # an explicit deletion is irreversible.
-        elif m == KEEP or presumption==KEEP:
+        elif m == KEEP or presumption == KEEP:
             # keep descending, in case there are nodes we should delete.
             if isinstance(v, list) or isinstance(v, dict):
                 filter_object(v, marks, presumption=KEEP)
@@ -90,6 +90,7 @@ def usage():
 
 
 class Timer(object):
+
     def __init__(self):
         '''Utility for logging timing info. Does nothing if DEBUG=False.'''
         self._start_time_ms_ = 1000 * time.time()
@@ -152,12 +153,31 @@ def apply_selector(objs, selector):
 
 timer = Timer()
 
-def run(args=None):
 
+def run(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-k', dest='keep_selectors', help='Selectors to keep', action='append', type=list, default=[])
-    parser.add_argument('-v', dest='delete_selectors', help='Selectors to delete', action='append', type=list, default=[])
-    parser.add_argument('--debug', dest='debug_mode', type=bool, help='Turn on "debug" mode')
+    parser.add_argument(
+        '-k',
+        dest='keep_selectors',
+        help='Selectors to keep',
+        action='append',
+        type=list,
+        default=[]
+    )
+    parser.add_argument(
+        '-v',
+        dest='delete_selectors',
+        help='Selectors to delete',
+        action='append',
+        type=list,
+        default=[]
+    )
+    parser.add_argument(
+        '--debug',
+        dest='debug_mode',
+        type=bool,
+        help='Turn on "debug" mode'
+    )
 
     args, unparsed = parser.parse_known_args(args if args else sys.argv[1:])
 
@@ -167,14 +187,15 @@ def run(args=None):
     keeps = map(''.join, args.keep_selectors)
     deletes = map(''.join, args.delete_selectors)
 
-    fd, selectors = (open(unparsed[-1]), unparsed[:-1]) if unparsed else (sys.stdin, [])
+    fd, selectors = (
+        open(unparsed[-1]), unparsed[:-1]) if unparsed else (sys.stdin, [])
 
     timer.log('Loading JSON...')
     objs = [json.load(fd, object_pairs_hook=OrderedDict)]
     timer.log('done loading JSON')
 
-    [ apply_filter(objs, selector, KEEP) for selector in keeps ]
-    [ apply_filter(objs, selector, DELETE) for selector in deletes ]
+    [apply_filter(objs, selector, KEEP) for selector in keeps]
+    [apply_filter(objs, selector, DELETE) for selector in deletes]
     objs = reduce(apply_selector, selectors, objs)
 
     def json_dump(o):

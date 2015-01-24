@@ -18,7 +18,8 @@ def test_all():
     for idx, spec in enumerate(specs):
         sys.stderr.write('%2d %s\n' % (idx, spec))
         args = load_commented_json(spec)
-        expected = open(spec.replace('.spec', '.out.json')).read().decode('utf8')
+        expected = open(
+            spec.replace('.spec', '.out.json')).read().decode('utf8')
         actual = jss.run(args)
 
         if expected != actual:

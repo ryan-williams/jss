@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 try:
-   import pypandoc
-   description = pypandoc.convert('README.md', 'rst')
+    import pypandoc
+    description = pypandoc.convert('README.md', 'rst')
 except (IOError, ImportError):
-   description = ''
+    description = ''
 
 
 setup(name='jss',
@@ -33,4 +33,4 @@ setup(name='jss',
           'json',
           'jsonselect'
       ]
-)
+      )
