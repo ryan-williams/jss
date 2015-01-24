@@ -23,6 +23,7 @@ Sample usage:
 For more examples and information, see https://github.com/danvk/jss/.
 '''
 
+import argparse
 import json
 import sys
 import time
@@ -151,41 +152,30 @@ def apply_selector(objs, selector):
 
 timer = Timer()
 
-def run(args):
-    if len(args) == 0 or args[0] == '--help':
-        usage()
-        sys.exit(0)
+def run():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-k', dest='keep_selectors', help='Selectors to keep', action='append', type=list, default=[])
+    parser.add_argument('-v', dest='delete_selectors', help='Selectors to delete', action='append', type=list, default=[])
+    parser.add_argument('--debug', dest='debug_mode', type=bool, help='Turn on "debug" mode')
+
+    args, unparsed = parser.parse_known_args()
 
     global DEBUG
-    path = args.pop()  # TODO: allow stdin
-    actions = args
+    DEBUG = True if args.debug_mode else False
 
-    if actions and actions[0] == '--debug':
-        DEBUG = True
-        del actions[0]
+    keeps = map(''.join, args.keep_selectors)
+    deletes = map(''.join, args.delete_selectors)
+
+    fd, selectors = (open(unparsed[-1]), unparsed[:-1]) if unparsed else (sys.stdin, [])
 
     timer.log('Loading JSON...')
-    objs = [json.load(open(path), object_pairs_hook=OrderedDict)]
+    objs = [json.load(fd, object_pairs_hook=OrderedDict)]
     timer.log('done loading JSON')
 
-    action_mode = None
-
-    while actions:
-        action = actions[0]
-        del actions[0]
-        mode = None
-        if action == '-k':
-            selector = actions[0]
-            del actions[0]
-            apply_filter(objs, selector, KEEP)
-        elif action == '-v':
-            selector = actions[0]
-            del actions[0]
-            apply_filter(objs, selector, DELETE)
-        elif action == '.':
-            continue
-        else:
-            objs = apply_selector(objs, action)
+    [ apply_filter(objs, selector, KEEP) for selector in keeps ]
+    [ apply_filter(objs, selector, DELETE) for selector in deletes ]
+    objs = reduce(apply_selector, selectors, objs)
 
     def json_dump(o):
         return json.dumps(o, indent=2, separators=(',', ': '), ensure_ascii=False)
@@ -200,7 +190,7 @@ def run(args):
 
 
 def main():
-    print run(sys.argv[1:]).encode('utf8'),
+    print run().encode('utf8'),
     timer.log('done printing')
 
 
