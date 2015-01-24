@@ -152,14 +152,14 @@ def apply_selector(objs, selector):
 
 timer = Timer()
 
-def run():
+def run(args=None):
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-k', dest='keep_selectors', help='Selectors to keep', action='append', type=list, default=[])
     parser.add_argument('-v', dest='delete_selectors', help='Selectors to delete', action='append', type=list, default=[])
     parser.add_argument('--debug', dest='debug_mode', type=bool, help='Turn on "debug" mode')
 
-    args, unparsed = parser.parse_known_args()
+    args, unparsed = parser.parse_known_args(args if args else sys.argv[1:])
 
     global DEBUG
     DEBUG = True if args.debug_mode else False
